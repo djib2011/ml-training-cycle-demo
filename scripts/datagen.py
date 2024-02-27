@@ -6,12 +6,11 @@ def make_circles_instance():
     Make a single instance for the circles dataset
     """
 
-    X, y = make_circles(n_samples=1, noise=0.1, random_state=42)
-    X = X.tolist()
-    y = y.tolist()
+    X, y = make_circles(n_samples=1, noise=0.1)
+    X = X.tolist()[0]
+    y = y.tolist()[0]
 
     return  X, y
-
 
 def insert_instance_to_mongo_collection(x, y, collection):
     """
@@ -21,6 +20,18 @@ def insert_instance_to_mongo_collection(x, y, collection):
     data = {'features': x, 'labels': y}
     collection.insert_one(data)
     
+
+def add_test_set_to_mongo():
+    from utils import get_mongo_collection
+
+    data = []
+    for instance in zip(*make_circles(n_samples=500, noise=0.1)):
+        x, y = instance
+        data.append({'features': x.tolist(), 'labels': y.tolist()})
+
+    collection = get_mongo_collection(train=False)
+    collection.insert_many(data)
+
 
 if __name__ == '__main__':
 
