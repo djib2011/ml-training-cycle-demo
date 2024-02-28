@@ -1,0 +1,52 @@
+services:
+
+  mlflow:
+    build:
+      context: ./docker/mlflow
+      args:
+        - PYTHON_BASE_IMAGE_VERSION=${PYTHON_BASE_IMAGE_VERSION}
+        - MLFLOW_VERSION=${MLFLOW_VERSION}
+    image: ${REPO_SLUG}/${MLFLOW_IMAGE_NAME}:${VERSION}
+    expose: 
+      - "${MLFLOW_TRACKING_SERVER_PORT}"
+    ports:
+      - "${MLFLOW_TRACKING_SERVER_PORT}:${MLFLOW_TRACKING_SERVER_PORT}"
+    depends_on: 
+      - postgres
+    environment: 
+      MLFLOW_TRACKING_SERVER_HOST: ${MLFLOW_TRACKING_SERVER_HOST}
+      MLFLOW_TRACKING_SERVER_PORT: ${MLFLOW_TRACKING_SERVER_PORT}
+      MLFLOW_ARTIFACT_STORE: ${MLFLOW_ARTIFACT_STORE}
+      MLFLOW_BACKEND_STORE: ${MLFLOW_BACKEND_STORE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      WAIT_FOR_IT_TIMEOUT: ${WAIT_FOR_IT_TIMEOUT}
+    volumes:
+      - ./${MLFLOW_ARTIFACT_STORE}:/${MLFLOW_ARTIFACT_STORE}
+    networks:
+      - ml-services
+        
+  postgres:
+    build:
+      context: ./docker/postgres
+    image: ${REPO_SLUG}/${POSTGRES_IMAGE_NAME}:${VERSION}
+    restart: always
+    environment: 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+    ports:
+      - "5433:5432"
+    volumes:
+      - mlflow-pg-vol:/var/lib/postgresql/data
+    networks:
+      - ml-services
+
+volumes:
+  mlflow-pg-vol:
+
+networks:
+    ml-services:
+        external: True
+
