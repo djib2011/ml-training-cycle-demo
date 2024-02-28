@@ -1,7 +1,9 @@
 import os
+import sys
 import pickle
 import shutil
 import mlflow
+import logging
 from pymongo import MongoClient
 
 
@@ -14,6 +16,14 @@ TEMP_DIR = '/tmp/pipeline_temp_dir'
 
 mlflow.set_tracking_uri('http://localhost:5000') 
 mlflow.set_experiment('circles_demo')
+
+# Setup the a logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def get_mongo_collection(train=True):
