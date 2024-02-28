@@ -1,0 +1,19 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-vol:/data/db
+    networks:
+      - ml-services
+
+volumes:
+  mongodb-vol:
+
+networks:
+  ml-services:
+      external: True
+
